@@ -1,6 +1,7 @@
 from sqlalchemy.orm import Session
 from models import Pedido, Cliente
 
+
 class PedidoCRUD:
 
     @staticmethod

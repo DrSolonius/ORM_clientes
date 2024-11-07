@@ -15,7 +15,7 @@ class App(ctk.CTk):
         super().__init__()
 
         self.title("Gestión de Clientes y Pedidos")
-        self.geometry("750x600")
+        self.geometry("850x600")
 
         # Crear el Tabview (pestañas)
         self.tabview = ctk.CTkTabview(self)
@@ -48,13 +48,17 @@ class App(ctk.CTk):
         frame_superior = ctk.CTkFrame(parent)
         frame_superior.pack(pady=10, padx=10, fill="x")
 
-        ctk.CTkLabel(frame_superior, text="Nombre").grid(row=0, column=0, pady=10, padx=10)
+        ctk.CTkLabel(frame_superior, text="Nombre").grid(row=0, column=0, pady=10, padx=8)
         self.entry_nombre = ctk.CTkEntry(frame_superior)
-        self.entry_nombre.grid(row=0, column=1, pady=10, padx=10)
+        self.entry_nombre.grid(row=0, column=1, pady=10, padx=8)
 
-        ctk.CTkLabel(frame_superior, text="Email").grid(row=0, column=2, pady=10, padx=10)
+        ctk.CTkLabel(frame_superior, text="Email").grid(row=0, column=2, pady=10, padx=8)
         self.entry_email = ctk.CTkEntry(frame_superior)
-        self.entry_email.grid(row=0, column=3, pady=10, padx=10)
+        self.entry_email.grid(row=0, column=3, pady=10, padx=8)
+
+        ctk.CTkLabel(frame_superior, text="Edad").grid(row=0, column=4, pady=10, padx=8)
+        self.entry_edad = ctk.CTkEntry(frame_superior)
+        self.entry_edad.grid(row=0, column=5, pady=10, padx=8)
 
         # Botones alineados horizontalmente en el frame superior
         self.btn_crear_cliente = ctk.CTkButton(frame_superior, text="Crear Cliente", command=self.crear_cliente)
@@ -71,9 +75,10 @@ class App(ctk.CTk):
         frame_inferior.pack(pady=10, padx=10, fill="both", expand=True)
 
         # Treeview para mostrar los clientes
-        self.treeview_clientes = ttk.Treeview(frame_inferior, columns=("Email", "Nombre"), show="headings")
+        self.treeview_clientes = ttk.Treeview(frame_inferior, columns=("Email", "Nombre", "Edad"), show="headings")
         self.treeview_clientes.heading("Email", text="Email")
         self.treeview_clientes.heading("Nombre", text="Nombre")
+        self.treeview_clientes.heading("Edad", text="Edad")
         self.treeview_clientes.pack(pady=10, padx=10, fill="both", expand=True)
 
         self.cargar_clientes()
@@ -132,15 +137,16 @@ class App(ctk.CTk):
         self.treeview_clientes.delete(*self.treeview_clientes.get_children())
         clientes = ClienteCRUD.leer_clientes(db)
         for cliente in clientes:
-            self.treeview_clientes.insert("", "end", values=(cliente.email, cliente.nombre))
+            self.treeview_clientes.insert("", "end", values=(cliente.email, cliente.nombre, cliente.edad))
         db.close()
 
     def crear_cliente(self):
         nombre = self.entry_nombre.get()
         email = self.entry_email.get()
+        edad = self.entry_edad.get()
         if nombre and email:
             db = next(get_session())
-            cliente = ClienteCRUD.crear_cliente(db, nombre, email)
+            cliente = ClienteCRUD.crear_cliente(db, nombre, email,edad)
             if cliente:
                 messagebox.showinfo("Éxito", "Cliente creado correctamente.")
                 self.cargar_clientes()
@@ -158,17 +164,23 @@ class App(ctk.CTk):
             return
         nombre = self.entry_nombre.get()
         email = self.entry_email.get()
+        edad = self.entry_edad.get()
         if not nombre.strip():
             messagebox.showwarning("Campo Vacío", "Por favor, ingrese un nombre.")
             return
         if not email.strip():
             messagebox.showwarning("Campo Vacío", "Por favor, ingrese un email.")
             return
+        if not edad.strip():
+            messagebox.showwarning("Campo Vacío", "Por favor, ingrese una edad.")
+            return
+        
         email_viejo = self.treeview_clientes.item(selected_item)["values"][0]
         nombre = self.entry_nombre.get()
+        edad = int(self.entry_edad.get())
         if nombre:
             db = next(get_session())
-            cliente_actualizado = ClienteCRUD.actualizar_cliente(db, email_viejo, nombre,email)
+            cliente_actualizado = ClienteCRUD.actualizar_cliente(db, email_viejo, nombre,email, edad)
             if cliente_actualizado:
                 messagebox.showinfo("Éxito", "Cliente actualizado correctamente.")
                 self.cargar_clientes()
