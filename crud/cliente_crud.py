@@ -3,13 +3,13 @@ from models import Cliente
 
 class ClienteCRUD:
     @staticmethod
-    def crear_cliente(db: Session, nombre: str, email: str):
+    def crear_cliente(db: Session, nombre: str, email: str, edad:int):
         cliente_existente = db.query(Cliente).filter_by(email=email).first()
         if cliente_existente:
             print(f"El cliente con el email '{email}' ya existe.")
             return cliente_existente
 
-        cliente = Cliente(nombre=nombre, email=email)
+        cliente = Cliente(nombre=nombre, email=email, edad=edad)
         db.add(cliente)
         db.commit()
         db.refresh(cliente)
@@ -19,7 +19,7 @@ class ClienteCRUD:
         """Obtiene todos los clientes en la base de datos."""
         return db.query(Cliente).all()
     @staticmethod
-    def actualizar_cliente(db: Session, email_actual: str, nuevo_nombre: str, nuevo_email: str = None):
+    def actualizar_cliente(db: Session, email_actual: str, nuevo_nombre: str, nuevo_email: str = None, edad: int=None):
         cliente = db.query(Cliente).get(email_actual)
         if not cliente:
             print(f"No se encontró el cliente con el email '{email_actual}'.")
@@ -28,7 +28,7 @@ class ClienteCRUD:
         # Si se quiere actualizar el email y es diferente
         if nuevo_email and nuevo_email != email_actual:
             # Crear un nuevo cliente con el nuevo email
-            nuevo_cliente = Cliente(nombre=nuevo_nombre, email=nuevo_email)
+            nuevo_cliente = Cliente(nombre=nuevo_nombre, email=nuevo_email, edad=edad)
             db.add(nuevo_cliente)
             db.commit()
 

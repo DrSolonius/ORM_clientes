@@ -8,6 +8,7 @@ class Cliente(Base):
     
     email = Column(String, primary_key=True)  # Email como clave primaria
     nombre = Column(String, nullable=False)
+    edad= Column(Integer, nullable=False)
     pedidos = relationship("Pedido", back_populates="cliente", cascade="all, delete-orphan")
 
 class Pedido(Base):
