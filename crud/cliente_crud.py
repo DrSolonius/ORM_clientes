@@ -1,9 +1,10 @@
 from sqlalchemy.orm import Session
+from sqlalchemy.exc import SQLAlchemyError
 from models import Cliente
 
 class ClienteCRUD:
     @staticmethod
-    def crear_cliente(db: Session, nombre: str, email: str, edad:int):
+    def crear_cliente(db: Session, nombre: str, email: str, edad: int):
         cliente_existente = db.query(Cliente).filter_by(email=email).first()
         if cliente_existente:
             print(f"El cliente con el email '{email}' ya existe.")
@@ -11,37 +12,56 @@ class ClienteCRUD:
 
         cliente = Cliente(nombre=nombre, email=email, edad=edad)
         db.add(cliente)
-        db.commit()
-        db.refresh(cliente)
+        try:
+            db.commit()
+            db.refresh(cliente)
+        except SQLAlchemyError as e:
+            db.rollback()
+            print(f"Error al crear el cliente: {e}")
+            return None
         return cliente
+
     @staticmethod
     def leer_clientes(db: Session):
         """Obtiene todos los clientes en la base de datos."""
         return db.query(Cliente).all()
+
     @staticmethod
-    def actualizar_cliente(db: Session, email_actual: str, nuevo_nombre: str, nuevo_email: str = None, edad: int=None):
+    def actualizar_cliente(db: Session, email_actual: str, nuevo_nombre: str, nuevo_email: str = None, edad: int = None):
         cliente = db.query(Cliente).get(email_actual)
         if not cliente:
             print(f"No se encontró el cliente con el email '{email_actual}'.")
             return None
 
-        # Si se quiere actualizar el email y es diferente
         if nuevo_email and nuevo_email != email_actual:
-            # Crear un nuevo cliente con el nuevo email
             nuevo_cliente = Cliente(nombre=nuevo_nombre, email=nuevo_email, edad=edad)
             db.add(nuevo_cliente)
-            db.commit()
+            try:
+                db.commit()
+            except SQLAlchemyError as e:
+                db.rollback()
+                print(f"Error al actualizar el cliente con nuevo email: {e}")
+                return None
 
-            # Eliminar el cliente antiguo
             db.delete(cliente)
-            db.commit()
+            try:
+                db.commit()
+            except SQLAlchemyError as e:
+                db.rollback()
+                print(f"Error al eliminar el cliente antiguo: {e}")
+                return None
 
             return nuevo_cliente
         else:
-            # Si no cambia el email, solo actualiza el nombre
             cliente.nombre = nuevo_nombre
-            db.commit()
-            db.refresh(cliente)
+            cliente.edad = edad
+            try:
+                db.commit()
+                db.refresh(cliente)
+            except SQLAlchemyError as e:
+                db.rollback()
+                print(f"Error al actualizar el cliente: {e}")
+                return None
             return cliente
 
     @staticmethod
@@ -49,8 +69,11 @@ class ClienteCRUD:
         cliente = db.query(Cliente).get(email)
         if cliente:
             db.delete(cliente)
-            db.commit()
+            try:
+                db.commit()
+            except SQLAlchemyError as e:
+                db.rollback()
+                print(f"Error al borrar el cliente: {e}")
+                return None
             return cliente
         return None
-
-
