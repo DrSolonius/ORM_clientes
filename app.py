@@ -56,9 +56,9 @@ class App(ctk.CTk):
         self.entry_email = ctk.CTkEntry(frame_superior)
         self.entry_email.grid(row=0, column=3, pady=10, padx=10)
 
-        ctk.CTkLabel(frame_superior, text="Edad").grid(row=0, column=3, pady=10, padx=10)
+        ctk.CTkLabel(frame_superior, text="Edad").grid(row=0, column=4, pady=10, padx=10)
         self.entry_edad = ctk.CTkEntry(frame_superior)
-        self.entry_edad.grid(row=0, column=4, pady=10, padx=10)
+        self.entry_edad.grid(row=0, column=5, pady=10, padx=10)
 
         # Botones alineados horizontalmente en el frame superior
         self.btn_crear_cliente = ctk.CTkButton(frame_superior, text="Crear Cliente", command=self.crear_cliente)
@@ -69,6 +69,9 @@ class App(ctk.CTk):
 
         self.btn_eliminar_cliente = ctk.CTkButton(frame_superior, text="Eliminar Cliente", command=self.eliminar_cliente)
         self.btn_eliminar_cliente.grid(row=1, column=2, pady=10, padx=10)
+
+        self.btn_actualizar_data = ctk.CTkButton(frame_superior, text="Actualizar Datos", command=self.cargar_clientes)
+        self.btn_actualizar_data.grid(row=1, column=3, pady=10, padx=10)
 
         # Frame inferior para el Treeview
         frame_inferior = ctk.CTkFrame(parent)
